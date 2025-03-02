@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/listproduct.css">
+</head>
+<body class="">
+    <%- include('partials/header') %>
+    <nav></nav>
+
+    <div class="grid grid-cols-4 gap-4 p-4 ">
+        <% if (Array.isArray(products) && products.length > 0) { %>
+            <% products.forEach((product, index) => { %>
+                <div class="col-span-1 p-4 bg-blue-200 rounded-lg shadow-md">
+                    <div class="w-full overflow-hidden rounded-lg bg-gray-200 img-container">
+                        <img src="<%= product.image_url %>" alt="Product Image" class="w-full h-48 object-fit rounded-lg">
+                    </div>
+                    
+                    
+                    <div class="name text-xl font-semibold mt-4 text-center">
+                       <%= product.name %>
+                    </div>
+
+                    <div class="price text-lg text-gray-700 mt-2 text-center">
+                        <%= product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) %>
+                    </div>
+
+                    <div class="text-lg font-semibold mt-4 text-center"><button class="bg-blue-500 text-white px-4 py-2 rounded">Thêm vào giỏ hàng</button> </div>
+                </div>
+            <% }); %>
+        <% } %>
+        
+        
+    </div>
+
+</body>
+</html>
