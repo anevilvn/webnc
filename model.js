@@ -1,4 +1,5 @@
     const mongoose = require('mongoose');
+    const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 
 
@@ -49,6 +50,8 @@
             required: true,
         }
     });
+    ProductSchema.plugin(AutoIncrement, { inc_field: 'product_id' });
+
     const Product = mongoose.model('Product', ProductSchema);
     const Category = mongoose.model('Category', CategorySchema);
 

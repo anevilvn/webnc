@@ -36,8 +36,20 @@
                                 <img src="<%= product.image_url %>" class="object-contain h-20 w-20 mx-auto rounded-md shadow">
                             </td>
                             <td class="py-3 px-4 border space-x-1">
-                                <a href="" class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">Update</a>
-                                <a href="" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">Delete</a>
+                                <a href="#" class="update-btn px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+                                data-id="<%= product.id %>"
+                                data-name="<%= product.name %>"
+                                data-price="<%= product.price %>"
+                                data-description="<%= product.description %>"
+                                data-image="<%= product.image_url %>"
+                                data-category="<%= product.category_id %>">
+                                Update
+                             </a>
+                             <a href="javascript:void(0);" onclick="deleteProduct('<%= product._id %>')" 
+                                class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+                                Delete
+                             </a>
+                             
                             </td>
                         </tr>
                     <% }) %>
@@ -84,6 +96,99 @@
         </div>
         
         
+        <!-- update -->
+        <div class="w-1/4 mx-auto mt-6 bg-white p-6 shadow-md rounded-lg absolute update_product hidden">
+            <div class="flex flex-row justify-between">
+                <h2 class="text-xl font-bold mb-4">Cập Nhật Sản Phẩm</h2>
+                <button class="exit-update text-xl font-bold mb-4">Exit</button>
+            </div>
+            <form id="updateProductForm" class="space-y-4">
+                <input type="hidden" id="updateProductId">
+                <div>
+                    <label class="block font-semibold">Tên sản phẩm</label>
+                    <input type="text" id="updateProductName" class="w-full border p-2 rounded" required>
+                </div>
+                <div>
+                    <label class="block font-semibold">Loại sản phẩm</label>
+                    <select id="updateProductType" class="w-full border p-2 rounded" required>
+                        <% categories.forEach(element => { %>
+                            <option value="<%= element.id %>"><%= element.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold">Giá</label>
+                    <input type="number" id="updateProductPrice" class="w-full border p-2 rounded" required>
+                </div>
+                <div>
+                    <label class="block font-semibold">Mô tả</label>
+                    <input type="text" id="updateProductDescription" class="w-full border p-2 rounded" required>
+                </div>
+                <div>
+                    <label class="block font-semibold">URL Ảnh</label>
+                    <input type="text" id="updateProductImage" class="w-full border p-2 rounded" required>
+                </div>
+                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Cập nhật</button>
+            </form>
+        </div>
+        <script>
+            document.querySelectorAll(".update-btn").forEach(button => {
+            button.addEventListener("click", function () {
+        document.querySelector(".update_product").style.display = "block";
+
+        document.getElementById("updateProductId").value = this.dataset.id;
+        document.getElementById("updateProductName").value = this.dataset.name;
+        document.getElementById("updateProductPrice").value = this.dataset.price;
+        document.getElementById("updateProductDescription").value = this.dataset.description;
+        document.getElementById("updateProductImage").value = this.dataset.image;
+        document.getElementById("updateProductType").value = this.dataset.category;
+                });
+            });
+
+            document.querySelector(".exit-update").addEventListener("click", () => {
+                document.querySelector(".update_product").style.display = "none";
+            });
+
+            document.getElementById("updateProductForm").addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const id = document.getElementById("updateProductId").value;
+                const name = document.getElementById("updateProductName").value;
+                const category_id = document.getElementById("updateProductType").value;
+                const price = document.getElementById("updateProductPrice").value;
+                const description = document.getElementById("updateProductDescription").value;
+                const image_url = document.getElementById("updateProductImage").value;
+
+                try {
+                    const response = await fetch(`/api/products/${id}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            name,
+                            price,
+                            image_url,
+                            category_id,
+                            description
+                        })
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert("Cập nhật sản phẩm thành công!");
+                        window.location.reload();
+                    } else {
+                        alert("Cập nhật thất bại: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi cập nhật dữ liệu:", error);
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+
+        </script>        
+
         
             
         
@@ -138,5 +243,40 @@
 
 
         </script>
+
+<script>
+    async function deleteCategory(categoryId) {
+      if (confirm("Bạn có chắc muốn xóa danh mục này không?")) {
+        try {
+          const response = await fetch(`/api/category/${categoryId}`, { method: 'DELETE' });
+          const result = await response.json();
+          alert(result.message);
+          location.reload(); // Tải lại trang sau khi xóa
+        } catch (error) {
+          console.error("Lỗi khi xóa danh mục:", error);
+          alert("Lỗi khi xóa danh mục!");
+        }
+      }
+    }
+</script>
+
+<script>
+
+  async function deleteProduct(productId) {
+    if (confirm("Bạn có chắc muốn xóa sản phẩm này không?")) {
+      try {
+        const response = await fetch(`/api/product/${productId}`, { method: 'DELETE' });
+        const result = await response.json();
+        alert(result.message);
+        location.reload(); // Tải lại trang sau khi xóa
+      } catch (error) {
+        console.error("Lỗi khi xóa sản phẩm:", error);
+        alert("Lỗi khi xóa sản phẩm!");
+      }
+    }
+  }
+</script>
+
+
 </body>
 </html>

@@ -11,15 +11,14 @@
     <%- include('partials/header') %>
     <nav></nav>
 
-    <div class="grid grid-cols-4 gap-4 p-4 ">
+    <div class="grid grid-cols-4 gap-4 p-4 product">
         <% if (Array.isArray(products) && products.length > 0) { %>
             <% products.forEach((product, index) => { %>
-                <div class="col-span-1 p-4 bg-blue-200 rounded-lg shadow-md">
+                <div class="col-span-1 p-4 bg-blue-200 rounded-lg shadow-md " data-id="<%= product._id %>">
                     <div class="w-full overflow-hidden rounded-lg bg-gray-200 img-container">
                         <img src="<%= product.image_url %>" alt="Product Image" class="w-full h-48 object-fit rounded-lg">
                     </div>
-                    
-                    
+
                     <div class="name text-xl font-semibold mt-4 text-center">
                        <%= product.name %>
                     </div>
@@ -28,13 +27,63 @@
                         <%= product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) %>
                     </div>
 
-                    <div class="text-lg font-semibold mt-4 text-center"><button class="bg-blue-500 text-white px-4 py-2 rounded">Thêm vào giỏ hàng</button> </div>
+                    <div class="text-lg font-semibold mt-4 text-center">
+                        <!-- Remove this debugging line in production -->
+                        <!-- <pre><%= JSON.stringify(product, null, 2) %></pre> -->
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded add-to-cart" 
+                        data-id="<%= product._id %>" data-name="<%= product.name %>" data-price="<%= product.price %>"
+                        data-url= "<%= product.image_url %>"
+                        >Thêm vào giỏ hàng</button> 
+                    </div>
                 </div>
             <% }); %>
         <% } %>
-        
-        
-    </div>
+    <script>
+        document.querySelectorAll('.product > div').forEach(product => {
+            product.addEventListener('click', function(event) {
 
+                if (event.target.classList.contains('add-to-cart')) return;
+
+                const productId = this.getAttribute('data-id');
+                window.location.href = `/product/${productId}`;
+            });
+        });
+
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.stopPropagation();
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const price = this.getAttribute('data-price');
+            const image_url = this.getAttribute('data-url')
+
+            console.log(`Adding to cart: ${name} (ID: ${id}) - ${price} VND`);
+
+            try {
+                const response = await fetch("/cart/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ id, name, price, image_url })
+                });
+
+                // Kiểm tra phản hồi từ server
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log("Server response:", result);
+
+                alert(`✅ ${name} đã được thêm vào giỏ hàng!`);
+            } catch (error) {
+                console.error("Lỗi khi thêm vào giỏ hàng:", error);
+                alert("❌ Lỗi khi thêm sản phẩm vào giỏ hàng. Vui lòng thử lại!");
+                }
+            });
+        });
+
+    </script>
 </body>
 </html>

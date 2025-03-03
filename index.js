@@ -11,6 +11,7 @@ app.use(express.json());
 //
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+const session = require('express-session');
 
 const connectDB = require('./database');
 connectDB();
@@ -21,10 +22,20 @@ const {getCategory, getBreedName} = require('./apiTheCat');
 const { title } = require('process');
 const {crop} =require('./img/crop')
 
+// Session middleware should be defined before requiring routes
+app.use(session({
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 ngày
+}));
 
+// Require routes after middleware is set up
+const cartRouter = require('./routers/cart');  // This is the problematic line
 
 // Định nghĩa API
 
+ app.use('/cart', cartRouter);
 app.get('/', (req, res) => {
   res.render('index', { title: "Trang chủ", message: "Chào mừng đến với trang EJS!" });
 });
@@ -45,7 +56,6 @@ app.get('/admin/category', async (req, res) => {
   }
 });
 //random
-
 app.post('/api/rnd-category', async (req, res) =>{
   try{
     const radCategories = await getBreedName();
@@ -53,6 +63,57 @@ app.post('/api/rnd-category', async (req, res) =>{
   }catch (error){
     console.log(error);
     res.status(500).json({ message: "Error retrieving random category", error: error.message });
+  }
+});
+
+// api
+app.delete('/api/category/:id', async (req, res) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: "Danh mục không tồn tại" });
+    }
+
+    res.json({ message: "Xóa danh mục thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+});
+
+app.delete('/api/product/:id', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    }
+
+    res.json({ message: "Xóa sản phẩm thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+});
+
+
+app.put('/api/category/:id', async (req, res) => {
+  try {
+    const { name } = req.body;
+    const updated_at = new Date();
+
+    if (!name) {
+      return res.status(400).json({ message: "Vui lòng nhập tên danh mục" });
+    }
+
+    const category = await Category.findByIdAndUpdate(req.params.id, { name, updated_at }, { new: true });
+
+    if (!category) {
+      return res.status(404).json({ message: "Danh mục không tồn tại" });
+    }
+
+    res.json({ message: "Cập nhật danh mục thành công", category });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 });
 
@@ -126,17 +187,22 @@ app.get('/products', async (req, res)=>{
 })
 
 // Product detail
-app.get('/product/:id', async (req, res) =>{
-  const productId = req.params.id;
-  const product = Product.findById(productId)
-  console.log("Product ID:", productId);
-  console.log("Product found:", product);
-  if (!product) {
-    return res.status(404).send("Không tìm thấy sản phẩm");
+app.get('/product/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    console.log("Product ID:", productId);
+    console.log("Product found:", product);
+    
+    if (!product) {
+      return res.status(404).send("Không tìm thấy sản phẩm");
+    }
+    
+    res.render('product', { product, title: product.name });
+  } catch (error) {
+    console.error("Error finding product:", error);
+    res.status(500).send("Lỗi server khi tìm sản phẩm");
   }
-  res.render('product', {product});
-
-
 });
 
 
