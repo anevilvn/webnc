@@ -28,8 +28,6 @@
                     </div>
 
                     <div class="text-lg font-semibold mt-4 text-center">
-                        <!-- Remove this debugging line in production -->
-                        <!-- <pre><%= JSON.stringify(product, null, 2) %></pre> -->
                         <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded add-to-cart" 
                         data-id="<%= product._id %>" data-name="<%= product.name %>" data-price="<%= product.price %>"
                         data-url= "<%= product.image_url %>"
@@ -45,7 +43,7 @@
                 if (event.target.classList.contains('add-to-cart')) return;
 
                 const productId = this.getAttribute('data-id');
-                window.location.href = `/product/${productId}`;
+                window.location.href = `/products/${productId}`;
             });
         });
 

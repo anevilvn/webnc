@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 
-router.delete('/api/category/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
       const category = await Category.findByIdAndDelete(req.params.id);
   
@@ -19,11 +19,11 @@ router.delete('/api/category/:id', async (req, res) => {
   
   
   
-  router.put('/api/category/:id', async (req, res) => {
+  router.put('/:id', async (req, res) => {
     try {
       const { name } = req.body;
       const updated_at = new Date();
-  
+      console.log(req.body)
       if (!name) {
         return res.status(400).json({ message: "Vui lòng nhập tên danh mục" });
       }
@@ -41,7 +41,7 @@ router.delete('/api/category/:id', async (req, res) => {
   });
   
   
-  router.post('/api/category', async (req, res) =>{
+  router.post('/', async (req, res) =>{
     try{
       const name = req.body.name;
       const created_at = new Date();
@@ -70,7 +70,7 @@ router.delete('/api/category/:id', async (req, res) => {
     res.status(404).send("Page Not Found");
   });
   //random
-  router.post('/api/rnd-category', async (req, res) =>{
+  router.post('/rnd', async (req, res) =>{
     try{
       const radCategories = await getBreedName();
       res.status(200).json(radCategories);

@@ -173,12 +173,12 @@
                             description
                         })
                     });
-
                     const result = await response.json();
                     if (response.ok) {
                         alert("Cập nhật sản phẩm thành công!");
                         window.location.reload();
                     } else {
+                        
                         alert("Cập nhật thất bại: " + result.message);
                     }
                 } catch (error) {
@@ -244,21 +244,7 @@
 
         </script>
 
-<script>
-    async function deleteCategory(categoryId) {
-      if (confirm("Bạn có chắc muốn xóa danh mục này không?")) {
-        try {
-          const response = await fetch(`/api/category/${categoryId}`, { method: 'DELETE' });
-          const result = await response.json();
-          alert(result.message);
-          location.reload(); // Tải lại trang sau khi xóa
-        } catch (error) {
-          console.error("Lỗi khi xóa danh mục:", error);
-          alert("Lỗi khi xóa danh mục!");
-        }
-      }
-    }
-</script>
+
 
 <script>
 

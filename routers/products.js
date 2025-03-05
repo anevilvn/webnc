@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
 const router = express.Router();
+const { Product } = require('../model');
 
-
-router.get('/products', async (req, res)=>{
+router.get('/', async (req, res)=>{
     const products = await Product.find({});
     res.render('listProducts',{ title: "Danh sách sản phẩm", products: products
     });
@@ -11,12 +11,11 @@ router.get('/products', async (req, res)=>{
 
 
 
-  router.get('/product/:id', async (req, res) => {
+  router.get('/:id', async (req, res) => {
     try {
       const productId = req.params.id;
       const product = await Product.findById(productId);
       console.log("Product ID:", productId);
-      console.log("Product found:", product);
       
       if (!product) {
         return res.status(404).send("Không tìm thấy sản phẩm");

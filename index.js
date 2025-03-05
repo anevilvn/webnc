@@ -14,7 +14,7 @@ app.set('views', path.join(__dirname, 'views'));
 const session = require('express-session');
 
 const connectDB = require('./database');
-connectDB();
+connectDB();  
 const { Category, Product } = require('./model');
 const { create } = require('domain');
 const e = require('express');
@@ -37,16 +37,14 @@ const adminCategoryRouter = require('./routers/admin-categories');
 const productsRouter = require('./routers/products');
 const adminProducts = require('./routers/admin-product');
 
-
-
 app.use('/products', productsRouter);
-app.use('/category', adminCategoryRouter);
+app.use('/api/categories', adminCategoryRouter);
 app.use('/cart', cartRouter);
 app.use('/admin', adminRouter);
-
+app.use('/api/products', adminProducts)
 
 app.get('/', (req, res) => {
-  res.render('index', { title: "Trang chủ", message: "Chào mừng đến với trang EJS!" });
+  res.redirect('/products');
 });
 
 // Khởi động máy chủ

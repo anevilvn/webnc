@@ -1,10 +1,11 @@
 const express = require('express');
+const { Product } = require('../model');
 const router = express.Router();
 const app = express();
 
 
 
-router.post("/api/products", async (req, res)=>{
+router.post("/", async (req, res)=>{
     try{
       const {name, price, description, image_url, category_id} = req.body;
       const created_at = new Date();
@@ -23,7 +24,7 @@ router.post("/api/products", async (req, res)=>{
   }
   )
 
-  router.delete('/api/product/:id', async (req, res) => {
+  router.delete('/:id', async (req, res) => {
     try {
       const product = await Product.findByIdAndDelete(req.params.id);
   
@@ -36,5 +37,21 @@ router.post("/api/products", async (req, res)=>{
       res.status(500).json({ message: "Lỗi server", error: error.message });
     }
   });
+
+  router.put('/:id', async (req, res) => {
+    try {
+      const {name, category_id, price, description, image_url} = req.body
+      if (!name || !category_id || !price || !description || !image_url) {
+        return res.status(400).json({ message: "Thiếu dữ liệu sản phẩm" });
+      }
+
+      const product = await Product.findByIdAndUpdate(req.params.id, { name, category_id, price, description, image_url }, { new: true });
+  
+      res.json({ message: "Cập nhật sản phẩm thành công", product });
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi server", error: error.message });
+    }
+  });
+
 
   module.exports = router;
